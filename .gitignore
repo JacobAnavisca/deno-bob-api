@@ -1,0 +1,11 @@
+**/.deno_dir/
+**/deno-lambda-layer/
+**/node_modules/
+**/.serverless/
+**/.serverless-offline/
+**/.DS_Store
+**/.env
+**/.env.dev
+**/.env.production
+Dockerfile
+docker-compose.yml

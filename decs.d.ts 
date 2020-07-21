@@ -1,0 +1,2 @@
+declare module 'https://github.com/awslabs/aws-serverless-express/blob/master/middleware.js';
+declare module 'https://github.com/awslabs/aws-serverless-express/blob/master/middleware.js';

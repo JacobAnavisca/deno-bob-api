@@ -1,0 +1,40 @@
+  
+service: deno-bob-api
+frameworkVersion: ">=1.1.0 <2.0.0"
+
+provider:
+  name: aws
+  runtime: provided
+  stage: ${opt:stage, 'dev'}
+  region: us-west-2
+  timeout: 30
+  apiKeys:
+    - ${self:service}-${opt:stage}-key
+
+package:
+  exclude:
+    - .deno_dir/gen/file
+    - deno-lambda-layer/**
+    - node_modules
+    - package-lock.json
+    - .serverless-offline/**
+    - Dockerfile
+    - docker-compose.yml
+
+functions:
+  app:
+    handler: hello.handler
+    layers:
+      - arn:aws:lambda:us-west-2:688488796456:layer:deno:1
+    memorySize: 512
+    description: Deno API to support B.O.B.
+    events:
+      - http: ANY /
+      - http: 'ANY {proxy+}'
+
+plugins:
+  - serverless-offline
+
+custom:
+  serverless-offline:
+    useDocker: true

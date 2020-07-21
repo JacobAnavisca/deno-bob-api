@@ -1,0 +1,28 @@
+{
+  "name": "deno-bob-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "hello.ts",
+  "scripts": {
+    "start": "nodemon --exec serverless offline --noPrependStageInUrl --stage=dev"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "serverless": "^1.71.1",
+    "serverless-scriptable-plugin": "^1.0.5"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^2.33.0",
+    "@typescript-eslint/parser": "^2.33.0",
+    "eslint": "^7.0.0",
+    "eslint-config-standard": "^14.1.1",
+    "eslint-plugin-import": "^2.20.2",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-standard": "^4.0.1",
+    "nodemon": "^2.0.4",
+    "serverless-offline": "github:footballencarta/serverless-offline#feature/add-layers"
+  }
+}
