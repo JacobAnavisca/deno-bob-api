@@ -1,4 +1,4 @@
-  
+
 service: deno-bob-api
 frameworkVersion: ">=1.1.0 <2.0.0"
 
@@ -8,8 +8,10 @@ provider:
   stage: ${opt:stage, 'dev'}
   region: us-west-2
   timeout: 30
-  apiKeys:
-    - ${self:service}-${opt:stage}-key
+  # apiKeys:
+  #   - ${self:service}-${opt:stage}-key
+  environment:
+    STAGE: ${opt:stage, 'dev'}
 
 package:
   exclude:
@@ -29,8 +31,31 @@ functions:
     memorySize: 512
     description: Deno API to support B.O.B.
     events:
+      - http: ANY /v1/
+      - http: 'ANY /v1/{proxy+}'
+      - schedule:
+          rate: rate(5 minutes)
+          name: ${self:service}-${self:provider.stage}-app-warmingup
+          description: Will call the ${self:service}-${self:provider.stage} lambda every 5 minutes in order to keep it warm
+          input:
+            path: /v1/warmUp
+          enabled: true
+  swagger:
+    handler: swagger/swagger.handler
+    layers:
+      - arn:aws:lambda:us-west-2:688488796456:layer:deno:1
+    memorySize: 512
+    description: Deno API to support B.O.B.
+    events:
       - http: ANY /
       - http: 'ANY {proxy+}'
+      - schedule:
+          rate: rate(5 minutes)
+          name: ${self:service}-${self:provider.stage}-swagger-warmingup
+          description: Will call the ${self:service}-${self:provider.stage} lambda every 5 minutes in order to keep it warm
+          input:
+            path: /warmUp
+          enabled: true
 
 plugins:
   - serverless-offline

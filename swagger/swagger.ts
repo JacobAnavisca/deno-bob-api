@@ -1,25 +1,22 @@
 // hello.ts
 
-import { parseBusinessData, parseCategoryData } from './data/dataParser.ts'
-import { yelpApiRequest } from './data/dataRetriever.ts'
 import {
   APIGatewayProxyEvent,
   APIGatewayProxyResult,
   Application,
   Context,
   ctx,
-  getQuery,
   isHttpError,
   Router,
   ServerRequest,
   ServerResponse
-} from './deps.ts'
+} from '../deps.ts'
 import {
   decodeBody,
   queryObjectToString,
   responseBuilder
-} from './utility/helper.ts'
-import { Logger } from './utility/logger.ts'
+} from '../utility/helper.ts'
+import { Logger } from '../utility/logger.ts'
 
 const logger = new Logger({ level: 0, format: 'APP::%s' })
 const router = new Router()
@@ -29,78 +26,27 @@ const CACHE = {
 }
 
 router
-  .get('/v1/business', async (context: ctx) => {
+  .get('/', async (context: ctx) => {
     try {
-      const query = getQuery(context)
-      const location = query.location
-
-      logger.info('%s%s%s Starting yelp request\n', 'APP::', 'BUSINESS::', 'INFO:')
-      const yelpResponse = await yelpApiRequest(
-        'https://api.yelp.com/v3/graphql',
-        `{
-          search(term: "black owned", location: "${location}", limit: 50, locale: "en_US") {
-            total
-            business {
-              id
-              name
-              alias
-              url
-              phone
-              display_phone
-              location {
-                address1
-                address2
-                formatted_address
-              }
-              is_closed
-              hours {
-                hours_type
-                open {
-                  is_overnight
-                  end
-                  start
-                  day
-                }
-              }
-            }
-          }
-        }`
-      )
-
-      logger.info('%s%s%s Returning response\n', 'APP::', 'BUSINESS::', 'INFO:')
-      const parsedBusinessData = parseBusinessData(yelpResponse, 'search')
-      context.response.body = parsedBusinessData
+      logger.info('%s%s%s Getting HTML\n', 'APP::', 'SWGRHTML::', 'INFO:')
+      const data = Deno.readFileSync('./swagger/index.html')
+      const swaggerHtml = decodeBody(data)
+      context.response.body = swaggerHtml
     } catch (err) {
-      logger.error(`%s%s%s ${err.stack}\n`, 'APP::', 'BUSINESS::', 'ERROR:')
+      logger.error(`%s%s%s ${err.stack}\n`, 'APP::', 'SWGRHTML::', 'ERROR:')
     }
   })
-  .get('/v1/category', async (context: ctx) => {
+  .get('/openapi.js', async (context: ctx) => {
     try {
-      logger.info('%s%s%s Starting yelp request\n', 'APP::', 'CATEGORY::', 'INFO:')
-      const yelpResponse = await yelpApiRequest(
-        'https://api.yelp.com/v3/graphql',
-        `{
-          categories(country: "US", locale: "en_US") {
-            category {
-              alias
-              title
-              parent_categories {
-                alias
-              }
-            }
-            total
-          }
-        }`
-      )
-
-      logger.info('%s%s%s Returning response\n', 'APP::', 'CATEGORY::', 'INFO:')
-      const parsedCategoryData = parseCategoryData(yelpResponse, 'categories')
-      context.response.body = parsedCategoryData
+      logger.info('%s%s%s Getting json\n', 'APP::', 'SWGRJS::', 'INFO:')
+      const data = Deno.readFileSync('./swagger/openapi.js')
+      const swaggerHtml = decodeBody(data)
+      context.response.body = swaggerHtml
     } catch (err) {
-      logger.error(`%s%s%s ${err.stack}\n`, 'APP::', 'CATEGORY::', 'ERROR:')
+      logger.error(`%s%s%s ${err.stack}\n`, 'APP::', 'SWGRJS::', 'ERROR:')
     }
   })
-  .get('/v1/warmUp', async (context: ctx) => {
+  .get('/warmUp', async (context: ctx) => {
     try {
       const status = {
         warmedUp: false,
