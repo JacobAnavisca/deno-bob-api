@@ -8,8 +8,8 @@ provider:
   stage: ${opt:stage, 'dev'}
   region: us-west-2
   timeout: 30
-  # apiKeys:
-  #   - ${self:service}-${opt:stage}-key
+  apiKeys:
+    - ${self:service}-${opt:stage}-key
   environment:
     STAGE: ${opt:stage, 'dev'}
 
@@ -28,11 +28,40 @@ functions:
     handler: hello.handler
     layers:
       - arn:aws:lambda:us-west-2:688488796456:layer:deno:1
+      # - arn:aws:lambda:us-west-2:688488796456:layer:deno:2
     memorySize: 512
     description: Deno API to support B.O.B.
     events:
-      - http: ANY /v1/
-      - http: 'ANY /v1/{proxy+}'
+      - http:
+          path: '/v1/'
+          method: ANY
+          private: true
+          cors:
+            origin: 'https://boblist.resistandassist.io' # <-- Specify allowed origin
+            headers: # <-- Specify allowed headers
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: false
+      - http:
+          path: '/v1/{proxy+}'
+          method: ANY
+          private: true
+          cors:
+            origin: 'https://boblist.resistandassist.io' # <-- Specify allowed origin
+            headers: # <-- Specify allowed headers
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: false
+      # - http: ANY /v1/
+      # - http: 'ANY /v1/{proxy+}'
       - schedule:
           rate: rate(5 minutes)
           name: ${self:service}-${self:provider.stage}-app-warmingup
@@ -44,6 +73,7 @@ functions:
     handler: swagger/swagger.handler
     layers:
       - arn:aws:lambda:us-west-2:688488796456:layer:deno:1
+      # - arn:aws:lambda:us-west-2:688488796456:layer:deno:2
     memorySize: 512
     description: Deno API to support B.O.B.
     events:

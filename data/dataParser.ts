@@ -2,6 +2,7 @@ import { moment } from '../deps.ts'
 import { Business } from '../models/Business.ts'
 import { BusinessHours } from '../models/BusinessHours.ts'
 import { Category } from '../models/Category.ts'
+import { DynamoResponse } from '../models/DynamoResponse.ts'
 import { BusinessResponse, CategoryResponse } from '../models/YelpResponse.ts'
 import { Logger } from '../utility/logger.ts'
 
@@ -11,6 +12,8 @@ const SUCCESS_STATUS = 200
 const HR_START = 0
 const HR_END_MIN_START = 2
 const MINUTE_END = 4
+const ONE_DAY = 24
+const ONE_WEEK = 7
 
 function parseResponse(response: any, key: string): BusinessResponse | CategoryResponse {
   if (response.status !== SUCCESS_STATUS) {
@@ -36,7 +39,19 @@ function parseBusinessData(response: object, key: string): Business[] {
 
     logger.info(`%s%s%s Updating data\n`, 'PARSER::', 'BUSINESS::', 'INFO:')
     const businesses: Business[] = parsedData.business.map(
-      (business: any, mapIndex: number) => {
+      (business: any) => {
+
+      const categories: Category[] = business.categories.map(
+        (category: any) => {
+
+          const updatedCategory = new Category(
+            category.alias,
+            category.title,
+            category.parent_categories[0]?.alias
+          )
+
+          return updatedCategory
+        })
 
       const hours: BusinessHours[] = business?.hours?.[0]?.open.reduce(
         (acc: any[], cur: any) => {
@@ -70,9 +85,13 @@ function parseBusinessData(response: object, key: string): Business[] {
         business.name,
         business.alias,
         business.url,
+        business.photos?.[0],
         business.phone,
         business.display_phone,
+        business.distance,
+        categories,
         business.location.formatted_address,
+        business.coordinates,
         business.is_closed,
         hours
       )
@@ -113,4 +132,25 @@ function parseCategoryData(response: object, key: string): Category[] {
   }
 }
 
-export { parseBusinessData, parseCategoryData }
+function parseDynamoData(data: DynamoResponse, ttl: 'hours' | 'days'): any {
+  if (Object.keys(data).length === 0) {
+    logger.info(`%s%s%s DB did not contain an entry\n`, 'PARSER::', 'DYNAMO::', 'INFO:')
+    return null
+  } else {
+    logger.info(`%s%s%s Checking if data is stale\n`, 'PARSER::', 'DYNAMO::', 'INFO:')
+    const tmpData = JSON.parse(data.Item.data)
+    const timestamp = moment(data.Item.timestamp)
+    const now = moment()
+    const timeDifference = now.diff(timestamp, ttl)
+
+    const parsedData: any = ttl === 'hours' && timeDifference < ONE_DAY
+      ? tmpData
+      : ttl === 'days' && timeDifference < ONE_WEEK
+        ? tmpData
+        : null
+
+    return parsedData
+  }
+}
+
+export { parseBusinessData, parseCategoryData, parseDynamoData }

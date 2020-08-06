@@ -1,4 +1,4 @@
-
+import moment from 'https://cdn.pika.dev/moment@^2.26.0'
 export {
   APIGatewayProxyEvent,
   APIGatewayProxyResult,
@@ -11,9 +11,11 @@ export {
   Router,
   ServerResponse
 } from 'https://deno.land/x/oak@v5.3.0/mod.ts'
+export { createClient, DynamoDBClient } from 'https://denopkg.com/chiefbiiko/dynamodb/mod.ts'
+export { createHash } from 'https://deno.land/std/hash/mod.ts'
 export { Logger } from './utility/logger.ts'
 export { ServerRequest } from 'https://deno.land/std@0.57.0/http/server.ts'
-export { moment } from 'https://deno.land/x/moment/moment.ts'
+export { moment }
 export { getQuery } from 'https://deno.land/x/oak@v5.3.0/helpers.ts'
 export { config } from 'https://deno.land/x/dotenv/mod.ts'
 export { soxa } from 'https://deno.land/x/soxa/mod.ts'

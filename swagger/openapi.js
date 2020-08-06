@@ -3,7 +3,7 @@ var spec = {
   "info": {
     "version": "1.0.0",
     "title": "Deno BOB APIs",
-    "description": "Takes Yelp API responses and converts them into an easier to digest format."
+    "description": "Takes Yelp API responses and converts them into an easier to ingest format."
   },
   "servers": [
     {
@@ -36,6 +36,12 @@ var spec = {
         "parameters": [
           {
             "$ref": "#/components/parameters/Address"
+          },
+          {
+            "$ref": "#/components/parameters/Latitude"
+          },
+          {
+            "$ref": "#/components/parameters/Longitude"
           }
         ],
         "responses": {
@@ -45,6 +51,17 @@ var spec = {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/BusinessList"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": "Invalid location or latitude and longitude were used."
                 }
               }
             }
@@ -74,37 +91,63 @@ var spec = {
       }
     }
   },
-  // "security": [
-  //   {
-  //     "ApiKeyAuth": []
-  //   }
-  // ],
+  "security": [
+    {
+      "ApiKeyAuth": []
+    }
+  ],
   "components": {
-    // "securitySchemes": {
-    //   "ApiKeyAuth": {
-    //     "type": "apiKey",
-    //     "in": "header",
-    //     "name": "x-api-key"
-    //   }
-    // },
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "x-api-key"
+      }
+    },
     "schemas": {
       "Address": {
         "description": "Address",
         "type": "string",
-        "pattern": "^(.+,\\s|)(.+,\\s)(.+)(\\s\\d{5,}|)$",
-        "example": "EIGHT MILE, AL",
+        "pattern": "^[A-Za-z]+,[ ]?[A-Za-z]{2}$",
+        "example": "Boston, MA"
+      },
+      "Latitude": {
+        "description": "Latitude",
+        "type": "number",
+        "pattern": "^[-+]?([1-8]?\\d(\\.\\d+)?|90(\\.0+)?)$",
+        "example": "47.1231231",
         "examples": {
-          "full": {
-            "value": "5957 HWY 45, EIGHT MILE, AL 36613",
-            "summary": "Full address"
+          "positive": {
+            "value": "+90.0",
+            "summary": "Valid positive decimal"
           },
-          "partial": {
-            "value": "EIGHT MILE, AL 36613",
-            "summary": "City, state, and zip"
+          "negative": {
+            "value": "-90.000",
+            "summary": "Valid negative decimal"
           },
-          "minimal": {
-            "value": "EIGHT MILE, AL",
-            "summary": "City and state"
+          "integer": {
+            "value": "45",
+            "summary": "Valid integer"
+          }
+        }
+      },
+      "Longitude": {
+        "description": "Longitude",
+        "type": "number",
+        "pattern": "^[-+]?(180(\\.0+)?|((1[0-7]\\d)|([1-9]?\\d))(\\.\\d+)?)$",
+        "example": "179.99999999",
+        "examples": {
+          "positive": {
+            "value": "+127.5",
+            "summary": "Valid positive decimal"
+          },
+          "negative": {
+            "value": "-180.0000",
+            "summary": "Valid negative decimal"
+          },
+          "integer": {
+            "value": "180",
+            "summary": "Valid integer"
           }
         }
       },
@@ -123,7 +166,7 @@ var spec = {
             "items": {
               "type": "string"
             },
-            "example": "5:00 pm - 12:00 am"
+            "example": ["5:00 pm - 12:00 am"]
           }
         }
       },
@@ -159,10 +202,25 @@ var spec = {
             "type": "string",
             "example": "(617) 354-7644"
           },
+          "distance": {
+            "description": "Distance from search location in meters.",
+            "type": "number",
+            "example": 1285.9472750566792
+          },
           "address": {
             "description": "Address for a business",
             "type": "string",
             "example": "604 Columbus Ave\nBoston, MA 02118"
+          },
+          "coordinates": {
+            "properties": {
+              "latitude": {
+                "$ref": "#components/schemas/Latitude"
+              },
+              "longitude": {
+                "$ref": "#components/schemas/Longitude"
+              }
+            }
           },
           "isClosed": {
             "description": "Whether the business is permanantly closed or not",
@@ -226,9 +284,27 @@ var spec = {
         "name": "location",
         "in": "query",
         "description": "Address to use for search",
-        "required": true,
+        "required": false,
         "schema": {
           "$ref": "#/components/schemas/Address"
+        }
+      },
+      "Latitude": {
+        "name": "lat",
+        "in": "query",
+        "description": "Latitude of a location",
+        "required": false,
+        "schema": {
+          "$ref": "#/components/schemas/Latitude"
+        }
+      },
+      "Longitude": {
+        "name": "long",
+        "in": "query",
+        "description": "Longitude for a location",
+        "required": false,
+        "schema": {
+          "$ref": "#/components/schemas/Longitude"
         }
       }
     },
