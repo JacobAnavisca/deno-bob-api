@@ -9,3 +9,4 @@
 **/.env.production
 Dockerfile
 docker-compose.yml
+*.zip

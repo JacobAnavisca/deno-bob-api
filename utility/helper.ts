@@ -16,7 +16,6 @@ async function headersToObject(responseHeaders: Headers): Promise<object> {
   responseHeaders.forEach(async (value: string, key: string) => {
     headersObject[key] = value
   })
-  headersObject['Access-Control-Allow-Origin'] = 'https://boblist.resistandassist.io'
   return headersObject
 }
 

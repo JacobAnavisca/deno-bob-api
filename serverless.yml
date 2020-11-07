@@ -27,8 +27,9 @@ functions:
   app:
     handler: hello.handler
     layers:
-      - arn:aws:lambda:us-west-2:688488796456:layer:deno:1
+      # - arn:aws:lambda:us-west-2:688488796456:layer:deno:1
       # - arn:aws:lambda:us-west-2:688488796456:layer:deno:2
+      - arn:aws:lambda:us-west-2:688488796456:layer:deno:3
     memorySize: 512
     description: Deno API to support B.O.B.
     events:
@@ -36,30 +37,12 @@ functions:
           path: '/v1/'
           method: ANY
           private: true
-          cors:
-            origin: 'https://boblist.resistandassist.io' # <-- Specify allowed origin
-            headers: # <-- Specify allowed headers
-              - Content-Type
-              - X-Amz-Date
-              - Authorization
-              - X-Api-Key
-              - X-Amz-Security-Token
-              - X-Amz-User-Agent
-            allowCredentials: false
+          # cors: true
       - http:
           path: '/v1/{proxy+}'
           method: ANY
           private: true
-          cors:
-            origin: 'https://boblist.resistandassist.io' # <-- Specify allowed origin
-            headers: # <-- Specify allowed headers
-              - Content-Type
-              - X-Amz-Date
-              - Authorization
-              - X-Api-Key
-              - X-Amz-Security-Token
-              - X-Amz-User-Agent
-            allowCredentials: false
+          # cors: true
       # - http: ANY /v1/
       # - http: 'ANY /v1/{proxy+}'
       - schedule:
@@ -72,8 +55,9 @@ functions:
   swagger:
     handler: swagger/swagger.handler
     layers:
-      - arn:aws:lambda:us-west-2:688488796456:layer:deno:1
+      # - arn:aws:lambda:us-west-2:688488796456:layer:deno:1
       # - arn:aws:lambda:us-west-2:688488796456:layer:deno:2
+      - arn:aws:lambda:us-west-2:688488796456:layer:deno:3
     memorySize: 512
     description: Deno API to support B.O.B.
     events:
@@ -89,7 +73,10 @@ functions:
 
 plugins:
   - serverless-offline
+  - serverless-scriptable-plugin
 
 custom:
+  scriptHooks:
+    before:package:createDeploymentArtifacts: DENO_DIR=.deno_dir deno cache hello.ts && cp -R .deno_dir/gen/file/$PWD/ .deno_dir/LAMBDA_TASK_ROOT
   serverless-offline:
     useDocker: true

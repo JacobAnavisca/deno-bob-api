@@ -9,6 +9,7 @@ import {
   ctx,
   getQuery,
   isHttpError,
+  oakCors,
   Router,
   ServerRequest,
   ServerResponse
@@ -181,6 +182,15 @@ router
       context.response.body = err.message
     }
   })
+  .get('/v1/error', async (context: ctx) => {
+    try {
+      throw new Error('uh oh')
+    } catch (err) {
+      logger.error(`%s%s%s ${err.stack}\n`, 'APP::', 'ERROR:')
+      context.response.status = BAD_REQUEST
+      context.response.body = err.message
+    }
+  })
 
 // Error handler
 app.use(async (context: ctx, next: any) => {
@@ -204,8 +214,9 @@ app.use(async (context: ctx, next: any) => {
   }
 })
 
+app.use(oakCors({ origin: true }))
 app.use(router.routes())
-app.use(router.allowedMethods())
+// app.use(router.allowedMethods())
 
 async function appTranslator( request: any): Promise<APIGatewayProxyResult> {
   const context = new ServerRequest()

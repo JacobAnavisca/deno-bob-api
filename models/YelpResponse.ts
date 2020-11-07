@@ -8,4 +8,4 @@ interface CategoryResponse {
     category: any[]
 }
 
-export { BusinessResponse, CategoryResponse }
+export type { BusinessResponse, CategoryResponse }
