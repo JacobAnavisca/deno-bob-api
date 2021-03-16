@@ -13,7 +13,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "serverless-plugin-aws-alerts": "^1.6.1"
+    "serverless-plugin-aws-alerts": "^1.7.1"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^2.33.0",
