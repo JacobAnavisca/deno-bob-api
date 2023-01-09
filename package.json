@@ -26,7 +26,7 @@
     "eslint-plugin-standard": "^4.0.1",
     "nodemon": "^2.0.4",
     "serverless": "^2.10.0",
-    "serverless-offline": "^6.8.0",
+    "serverless-offline": "^12.0.4",
     "serverless-scriptable-plugin": "^1.0.5",
     "tslint": "^6.1.2",
     "typescript": "^3.9.7",
